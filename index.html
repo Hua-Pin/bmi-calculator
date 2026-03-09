@@ -10,6 +10,7 @@
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
         .config-section { background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .instruction { background: #f0fdf4; border-left: 5px solid #22c55e; padding: 15px; margin-bottom: 20px; font-size: 14px; color: #166534; line-height: 1.6; }
         .diagnosis-box { background: #fffbe6; border: 2px solid #ffe58f; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: none; }
         .table-container { max-height: 350px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
@@ -32,6 +33,11 @@
 <div class="card">
     <div class="header"><h2>📊 兒童成長監測系統</h2></div>
 
+    <div class="instruction">
+        <strong>📝 輸入指南：</strong><br>
+        為精確觀察孩子的成長走勢，建議您<strong>對照兒童健康手冊</strong>，輸入孩子<strong>從出生至今</strong>各階段的身高與體重紀錄。這能協助我們產出連續性的成長曲線圖，有效預防肥胖風險。
+    </div>
+
     <div class="config-section">
         <div>
             <label><strong>1. 孩子性別：</strong></label>
@@ -51,13 +57,13 @@
     
     <div class="table-container">
         <table>
-            <thead><tr><th>年齡</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
+            <thead><tr><th>年齡階段</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
             <tbody id="input-body"></tbody>
         </table>
     </div>
 
     <div class="btn-group">
-        <button class="btn-chart" onclick="generateAnalysis()">1. 產出分析報告</button>
+        <button class="btn-chart" onclick="generateAnalysis()">1. 產出成長趨勢報告</button>
         <button class="btn-export" onclick="exportData()">2. 匯出紀錄 (CSV)</button>
     </div>
 
@@ -69,7 +75,7 @@
     <div class="footer">
         <div class="author-info">設計者：亞洲大學 護理學系 張華蘋老師</div>
         <div class="ref-note">
-            參考依據：衛福部國健署兒童生長曲線與 BMI 建議值 [cite: 105, 133, 139]<br>
+            參考依據：衛福部國健署兒童生長曲線與 BMI 建議值 [cite: 34, 105]<br>
             © 2026 亞洲大學護理學系 與 中山醫學大學遺傳代謝科 數位健康照護研究團隊
         </div>
     </div>
@@ -96,16 +102,11 @@
         const birth = new Date(document.getElementById('pBirth').value);
         const now = new Date();
         if (isNaN(birth)) return;
-        
         let years = now.getFullYear() - birth.getFullYear();
         let months = now.getMonth() - birth.getMonth();
         if (months < 0) { years--; months += 12; }
-        
-        document.getElementById('age-display').innerHTML = `👶 孩子目前的年齡為：${years} 歲 ${months} 個月`;
-        
-        // 清除舊高亮
+        document.getElementById('age-display').innerHTML = `👶 孩子目前約：${years} 歲 ${months} 個月`;
         document.querySelectorAll('tr').forEach(tr => tr.classList.remove('highlight'));
-        // 高亮對應年齡列
         const rowIdx = Math.min(years, 18);
         document.getElementById(`row-${rowIdx}`).classList.add('highlight');
     }
@@ -134,10 +135,10 @@
             diag.style.display = 'block';
             const norms = bmiNorms[gender];
             const ageKey = Math.min(latestAgeIdx, 17);
-            let status = "🟢 目前體位正常 [cite: 105, 81]";
-            if (latestBmi >= norms.obese[ageKey]) status = "🔴 判定為：肥胖 [cite: 105, 81]";
-            else if (latestBmi >= norms.over[ageKey]) status = "🟡 判定為：過重 [cite: 105, 81]";
-            diag.innerHTML = `<strong>📍 最新監測 (${ages[latestAgeIdx]})：</strong> BMI 為 ${latestBmi}。${status}`;
+            let status = "🟢 目前體位正常 [cite: 105]";
+            if (latestBmi >= norms.obese[ageKey]) status = "🔴 判定為：肥胖 [cite: 105]";
+            else if (latestBmi >= norms.over[ageKey]) status = "🟡 判定為：過重 [cite: 105]";
+            diag.innerHTML = `<strong>📍 最新監測報告 (${ages[latestAgeIdx]})：</strong><br>BMI：${latestBmi}。${status}<br><small>※ 判定依據參考國健署 0-18 歲體位標準 [cite: 105, 139]。</small>`;
         }
 
         const ctxH = document.getElementById('heightChart').getContext('2d');
@@ -161,7 +162,7 @@
             type: 'line',
             data: {
                 labels: ages,
-                datasets: [{ label: 'BMI 成長軌跡 [cite: 101]', data: bmiData, borderColor: '#2c3e50', borderWidth: 3, fill: false, tension: 0.3 }]
+                datasets: [{ label: 'BMI 成長軌跡', data: bmiData, borderColor: '#2c3e50', borderWidth: 3, fill: false, tension: 0.3 }]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
@@ -182,7 +183,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `成長分析報告_張華蘋老師團隊.csv`;
+        link.download = `成長分析研究報告.csv`;
         link.click();
     }
 </script>
