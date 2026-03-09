@@ -3,47 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兒童成長 BMI 追蹤系統 - 亞洲大學護理學系</title>
+    <title>兒童成長與生長速度追蹤 - 亞洲大學張華蘋老師</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 650px; margin: 20px auto; padding: 20px; background-color: #f0f4f8; }
+        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 700px; margin: 20px auto; padding: 20px; background-color: #f4f7f9; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
         .author-info { font-size: 15px; color: #2980b9; margin-top: 8px; font-weight: bold; }
-        .purpose { background: #e8f4fd; padding: 15px; border-radius: 8px; font-size: 14px; color: #34495e; margin-bottom: 25px; line-height: 1.6; border-left: 4px solid #3498db; }
-        h2 { color: #2c3e50; margin: 0; font-size: 24px; }
+        .config-section { background: #fff; border: 1px solid #d1d9e0; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
+        .diagnosis-box { background: #fffbe6; border: 2px solid #ffe58f; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
         .table-container { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
-        th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; }
-        td { padding: 10px; text-align: center; border-bottom: 1px solid #f1f1f1; }
-        input { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
+        th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; font-size: 14px; }
+        td { padding: 8px; text-align: center; border-bottom: 1px solid #f1f1f1; }
+        input { width: 70px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         button { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; transition: 0.3s; }
         .btn-chart { background: #3498db; }
         .btn-export { background: #27ae60; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .chart-container { margin-top: 30px; height: 400px; }
-        .footer-note { text-align: center; font-size: 12px; color: #95a5a6; margin-top: 20px; }
+        .chart-container { margin-top: 25px; height: 350px; }
+        .velocity-tag { font-size: 12px; color: #7f8c8d; display: block; margin-top: 2px; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div class="header">
-        <h2>📊 兒童成長 BMI 追蹤系統</h2>
+        <h2>📊 兒童成長速度監測系統</h2>
         <div class="author-info">設計者：亞洲大學 護理學系 張華蘋老師</div>
     </div>
 
-    <div class="purpose">
-        <strong>💡 使用目的：</strong><br>
-        本工具旨在協助家長長期監測孩子從出生到 18 歲的成長趨勢。透過定期記錄身高與體重，系統將自動繪製 BMI 曲線，協助觀察孩子是否處於健康的發育範圍，並及早預防兒童肥胖風險。
+    <div class="config-section">
+        <label><strong>孩子性別：</strong></label>
+        <select id="pGender">
+            <option value="male">男童 (Boy)</option>
+            <option value="female">女童 (Girl)</option>
+        </select>
     </div>
+
+    <div id="diagnosis" class="diagnosis-box"></div>
     
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>年齡階段</th>
+                    <th>年齡</th>
                     <th>身高 (cm)</th>
                     <th>體重 (kg)</th>
                 </tr>
@@ -53,38 +57,84 @@
     </div>
 
     <div class="btn-group">
-        <button class="btn-chart" onclick="updateChart()">1. 產出成長趨勢圖</button>
-        <button class="btn-export" onclick="exportData()">2. 匯出紀錄 (CSV)</button>
+        <button class="btn-chart" onclick="analyzeGrowth()">1. 執行生長速度分析</button>
+        <button class="btn-export" onclick="exportData()">2. 匯出研究資料 (CSV)</button>
     </div>
 
-    <div class="chart-container">
-        <canvas id="bmiChart"></canvas>
-    </div>
-
-    <div class="footer-note">
-        © 2026 亞洲大學護理學系 數位健康照護研究專案
-    </div>
+    <div class="chart-container"><canvas id="bmiChart"></canvas></div>
 </div>
 
 <script>
     const ages = ['出生', '1歲', '2歲', '3歲', '4歲', '5歲', '6歲', '7歲', '8歲', '9歲', '10歲', '11歲', '12歲', '13歲', '14歲', '15歲', '16歲', '17歲', '18歲'];
     const tbody = document.getElementById('input-body');
 
-    ages.forEach(age => {
-        tbody.innerHTML += `<tr><td><strong>${age}</strong></td><td><input type="number" step="0.1" class="h-input" placeholder="身高"></td><td><input type="number" step="0.1" class="w-input" placeholder="體重"></td></tr>`;
+    ages.forEach((age, i) => {
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${age}</strong></td>
+                <td>
+                    <input type="number" step="0.1" class="h-input" onchange="calculateVelocity(${i})">
+                    <span id="h-vel-${i}" class="velocity-tag"></span>
+                </td>
+                <td>
+                    <input type="number" step="0.1" class="w-input" onchange="calculateVelocity(${i})">
+                    <span id="w-vel-${i}" class="velocity-tag"></span>
+                </td>
+            </tr>`;
     });
 
+    function calculateVelocity(index) {
+        if (index === 0) return;
+        const hCurrent = parseFloat(document.querySelectorAll('.h-input')[index].value);
+        const hPrev = parseFloat(document.querySelectorAll('.h-input')[index-1].value);
+        const wCurrent = parseFloat(document.querySelectorAll('.w-input')[index].value);
+        const wPrev = parseFloat(document.querySelectorAll('.w-input')[index-1].value);
+
+        if (hCurrent && hPrev) {
+            document.getElementById(`h-vel-${index}`).innerText = `↑${(hCurrent - hPrev).toFixed(1)} cm/y`;
+        }
+        if (wCurrent && wPrev) {
+            document.getElementById(`w-vel-${index}`).innerText = `↑${(wCurrent - wPrev).toFixed(1)} kg/y`;
+        }
+    }
+
     let chart;
-    function updateChart() {
+    function analyzeGrowth() {
         const bmiData = [];
         const rows = document.querySelectorAll('#input-body tr');
-        rows.forEach(row => {
+        let lastBmi = 0, lastHVel = 0, lastWVel = 0, lastAge = "";
+
+        rows.forEach((row, i) => {
             const h = parseFloat(row.querySelector('.h-input').value);
             const w = parseFloat(row.querySelector('.w-input').value);
             if (h > 0 && w > 0) {
-                bmiData.push((w / Math.pow(h / 100, 2)).toFixed(1));
+                const bmi = (w / Math.pow(h / 100, 2)).toFixed(1);
+                bmiData.push(bmi);
+                lastBmi = bmi;
+                lastAge = ages[i];
+                if (i > 0) {
+                    const hPrev = parseFloat(document.querySelectorAll('.h-input')[i-1].value);
+                    const wPrev = parseFloat(document.querySelectorAll('.w-input')[i-1].value);
+                    if (hPrev) lastHVel = (h - hPrev).toFixed(1);
+                    if (wPrev) lastWVel = (w - wPrev).toFixed(1);
+                }
             } else { bmiData.push(null); }
         });
+
+        const diagBox = document.getElementById('diagnosis');
+        if (lastBmi > 0) {
+            diagBox.style.display = 'block';
+            let msg = `<strong>📍 監測報告 (${lastAge})：</strong><br>`;
+            msg += `● 當前 BMI：${lastBmi}<br>`;
+            if (lastHVel > 0) msg += `● 身高生長速度：每年 ${lastHVel} cm<br>`;
+            if (lastWVel > 0) msg += `● 體重增加速度：每年 ${lastWVel} kg<br>`;
+            
+            if (lastWVel > 4) msg += `<span style="color:red;">⚠️ 提醒：體重增加速度較快，請留意飲食與 AR 風險。</span>`;
+            else if (lastHVel < 4 && ages.indexOf(lastAge) > 3) msg += `<span style="color:orange;">⚠️ 提醒：生長速度稍緩，建議留意營養與睡眠。</span>`;
+            else msg += `<span style="color:green;">✅ 成長速度穩定，請繼續保持！</span>`;
+            
+            diagBox.innerHTML = msg;
+        }
 
         const ctx = document.getElementById('bmiChart').getContext('2d');
         if (chart) chart.destroy();
@@ -92,30 +142,15 @@
             type: 'line',
             data: {
                 labels: ages,
-                datasets: [{
-                    label: 'BMI 趨勢曲線',
-                    data: bmiData,
-                    borderColor: '#3498db',
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                    borderWidth: 4,
-                    pointRadius: 6,
-                    spanGaps: true,
-                    tension: 0.3
-                }]
+                datasets: [{ label: 'BMI 趨勢', data: bmiData, borderColor: '#3498db', borderWidth: 4, spanGaps: true, tension: 0.3 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { title: { display: true, text: 'BMI (kg/m²)' }, ticks: { stepSize: 2 } },
-                    x: { title: { display: true, text: '年齡' } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
     function exportData() {
-        let csv = "\ufeff設計者,亞洲大學護理學系 張華蘋老師\n年齡,身高(cm),體重(kg),BMI\n";
+        const gender = document.getElementById('pGender').value === 'male' ? '男' : '女';
+        let csv = "\ufeff設計者,亞洲大學護理學系 張華蘋老師\n性別," + gender + "\n年齡,身高(cm),體重(kg),BMI\n";
         document.querySelectorAll('#input-body tr').forEach(row => {
             const age = row.cells[0].innerText;
             const h = row.querySelector('.h-input').value;
@@ -126,7 +161,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `兒童BMI成長紀錄_張華蘋老師團隊.csv`;
+        link.download = `兒童成長分析報告_張華蘋老師團隊.csv`;
         link.click();
     }
 </script>
