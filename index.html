@@ -18,8 +18,12 @@
         th { position: sticky; top: 0; background: #f1f5f9; padding: 12px; z-index: 10; }
         td { padding: 8px; text-align: center; border-bottom: 1px solid #f1f5f9; }
         .input-table { width: 80px; padding: 5px; text-align: center; }
-        button { width: 100%; background: #3b82f6; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #2563eb; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        button { padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; color: white; transition: 0.3s; }
+        .btn-chart { background: #3b82f6; }
+        .btn-chart:hover { background: #2563eb; }
+        .btn-export { background: #10b981; }
+        .btn-export:hover { background: #059669; }
         .chart-container { margin-top: 30px; height: 450px; }
     </style>
 </head>
@@ -40,12 +44,14 @@
     <div class="table-container">
         <table>
             <thead><tr><th>年齡</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
-            <tbody id="tracking-body">
-                </tbody>
+            <tbody id="tracking-body"></tbody>
         </table>
     </div>
 
-    <button onclick="generateReport()">產出 BMI 成長趨勢圖</button>
+    <div class="btn-group">
+        <button class="btn-chart" onclick="generateReport()">1. 產出趨勢圖</button>
+        <button class="btn-export" onclick="exportToCSV()">2. 匯出個案資料 (CSV)</button>
+    </div>
 
     <div class="chart-container">
         <canvas id="bmiChart"></canvas>
@@ -66,44 +72,49 @@
         const bmiData = [];
         const gender = document.getElementById('pGender').value;
         const rows = document.querySelectorAll('#tracking-body tr');
-
         rows.forEach(row => {
             const h = parseFloat(row.querySelector('.h').value);
             const w = parseFloat(row.querySelector('.w').value);
             if (h > 0 && w > 0) {
                 bmiData.push((w / Math.pow(h / 100, 2)).toFixed(1));
-            } else {
-                bmiData.push(null);
-            }
+            } else { bmiData.push(null); }
         });
-
         const ctx = document.getElementById('bmiChart').getContext('2d');
         if (myChart) myChart.destroy();
-        
         myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ages,
                 datasets: [{
-                    label: document.getElementById('pName').value + ' 的 BMI 趨勢',
+                    label: (document.getElementById('pName').value || '個案') + ' BMI 趨勢',
                     data: bmiData,
                     borderColor: gender === 'male' ? '#3b82f6' : '#ec4899',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 4,
-                    pointRadius: 6,
-                    spanGaps: true,
-                    tension: 0.3
+                    borderWidth: 4, spanGaps: true, tension: 0.3
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { title: { display: true, text: 'BMI (kg/m²)' }, min: 10 },
-                    x: { title: { display: true, text: '年齡階段' } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
+    }
+
+    function exportToCSV() {
+        const name = document.getElementById('pName').value || '未命名個案';
+        let csv = "\ufeff項目,數值\n";
+        csv += `姓名,${name}\n性別,${document.getElementById('pGender').value}\n生日,${document.getElementById('pBirthday').value}\n胎次,${document.getElementById('pParity').value}\n週數,${document.getElementById('pGA').value}\n體重(g),${document.getElementById('pBirthW').value}\n\n年齡,身高,體重,BMI\n`;
+        
+        document.querySelectorAll('#tracking-body tr').forEach(row => {
+            const age = row.cells[0].innerText;
+            const h = row.querySelector('.h').value;
+            const w = row.querySelector('.w').value;
+            let bmi = (h > 0 && w > 0) ? (w / Math.pow(h / 100, 2)).toFixed(1) : "";
+            csv += `${age},${h},${w},${bmi}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${name}_成長紀錄.csv`;
+        link.click();
     }
 </script>
 </body>
