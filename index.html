@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兒童成長與 BMI 追蹤系統 (0-18歲)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background-color: #f8fafc; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2, h3 { color: #1e293b; border-left: 5px solid #3b82f6; padding-left: 15px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .input-item { display: flex; flex-direction: column; }
+        label { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #475569; }
+        input, select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        .table-container { max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { position: sticky; top: 0; background: #f1f5f9; padding: 12px; z-index: 10; }
+        td { padding: 8px; text-align: center; border-bottom: 1px solid #f1f5f9; }
+        .input-table { width: 80px; padding: 5px; text-align: center; }
+        button { width: 100%; background: #3b82f6; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #2563eb; }
+        .chart-container { margin-top: 30px; height: 450px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>📋 個案基本資料紀錄</h2>
+    <div class="grid">
+        <div class="input-item"><label>姓名</label><input type="text" id="pName" placeholder="請輸入姓名"></div>
+        <div class="input-item"><label>性別</label><select id="pGender"><option value="male">男寶</option><option value="female">女寶</option></select></div>
+        <div class="input-item"><label>出生年月日</label><input type="date" id="pBirthday"></div>
+        <div class="input-item"><label>胎次</label><input type="number" id="pParity" placeholder="第幾胎"></div>
+        <div class="input-item"><label>出生週數 (週+天)</label><input type="text" id="pGA" placeholder="例如: 38+2"></div>
+        <div class="input-item"><label>出生體重 (g)</label><input type="number" id="pBirthW" placeholder="公克"></div>
+    </div>
+
+    <h3>📈 歷年身高體重 (填寫至目前年紀)</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>年齡</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
+            <tbody id="tracking-body">
+                </tbody>
+        </table>
+    </div>
+
+    <button onclick="generateReport()">產出 BMI 成長趨勢圖</button>
+
+    <div class="chart-container">
+        <canvas id="bmiChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const tbody = document.getElementById('tracking-body');
+    const ages = ['出生', '1歲', '2歲', '3歲', '4歲', '5歲', '6歲', '7歲', '8歲', '9歲', '10歲', '11歲', '12歲', '13歲', '14歲', '15歲', '16歲', '17歲', '18歲'];
+    
+    ages.forEach(age => {
+        const row = `<tr><td>${age}</td><td><input type="number" step="0.1" class="h input-table"></td><td><input type="number" step="0.1" class="w input-table"></td></tr>`;
+        tbody.innerHTML += row;
+    });
+
+    let myChart;
+    function generateReport() {
+        const bmiData = [];
+        const gender = document.getElementById('pGender').value;
+        const rows = document.querySelectorAll('#tracking-body tr');
+
+        rows.forEach(row => {
+            const h = parseFloat(row.querySelector('.h').value);
+            const w = parseFloat(row.querySelector('.w').value);
+            if (h > 0 && w > 0) {
+                bmiData.push((w / Math.pow(h / 100, 2)).toFixed(1));
+            } else {
+                bmiData.push(null);
+            }
+        });
+
+        const ctx = document.getElementById('bmiChart').getContext('2d');
+        if (myChart) myChart.destroy();
+        
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ages,
+                datasets: [{
+                    label: document.getElementById('pName').value + ' 的 BMI 趨勢',
+                    data: bmiData,
+                    borderColor: gender === 'male' ? '#3b82f6' : '#ec4899',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 4,
+                    pointRadius: 6,
+                    spanGaps: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { title: { display: true, text: 'BMI (kg/m²)' }, min: 10 },
+                    x: { title: { display: true, text: '年齡階段' } }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
