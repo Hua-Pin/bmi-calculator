@@ -23,7 +23,7 @@
         .chart-wrapper { margin-top: 30px; height: 450px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #edf2f7; }
         .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
         .author-info { font-size: 16px; color: #2980b9; font-weight: bold; margin-bottom: 5px; }
-        .ref-note { font-size: 12px; color: #95a5a6; }
+        .ref-note { font-size: 12px; color: #95a5a6; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -64,17 +64,19 @@
         <div class="author-info">設計者：亞洲大學 護理學系 張華蘋老師</div>
         <div class="ref-note">
             參考依據：衛福部國健署兒童生長曲線與 BMI 建議值<br>
-            © 2026 亞洲大學護理學系 數位健康照護研究團隊
+            © 2026 亞洲大學護理學系 與 中山醫學大學遺傳代謝科 數位健康照護研究團隊
         </div>
     </div>
 </div>
 
 <script>
+    // 依據國健署標準值設定切點 [cite: 105]
     const bmiNorms = {
         male: { over: [14.8, 18.3, 17.4, 17.0, 16.7, 16.7, 16.9, 17.9, 19.0, 19.5, 20.0, 20.7, 21.3, 21.9, 22.5, 22.9, 23.3, 23.5], obese: [15.8, 19.2, 18.3, 17.8, 17.6, 17.7, 18.5, 20.3, 21.6, 22.3, 22.7, 23.2, 23.9, 24.5, 25.0, 25.4, 25.6, 25.6] },
         female: { over: [14.7, 17.9, 17.2, 16.9, 16.8, 17.0, 17.2, 17.7, 18.4, 19.1, 19.7, 20.5, 21.3, 21.9, 22.5, 22.7, 22.7, 22.7], obese: [15.5, 19.0, 18.1, 17.8, 17.9, 18.1, 18.8, 19.6, 20.7, 21.3, 22.0, 22.7, 23.5, 24.3, 24.9, 25.2, 25.3, 25.3] }
     };
 
+    // 身高百分位參考數值 [cite: 34, 105]
     const heightPercentiles = {
         male: { p3: [50, 75, 85, 93, 99, 105, 110, 115, 120, 125, 130, 135, 142, 150, 158, 163, 165, 166, 167], p97: [54, 82, 92, 102, 110, 118, 125, 132, 138, 144, 150, 158, 168, 176, 182, 185, 186, 187, 188] },
         female: { p3: [49, 73, 84, 92, 98, 104, 109, 114, 119, 124, 130, 136, 143, 148, 151, 152, 153, 153, 154], p97: [53, 80, 91, 101, 109, 116, 123, 130, 137, 144, 152, 159, 165, 168, 170, 171, 171, 172, 172] }
@@ -110,10 +112,10 @@
             diag.style.display = 'block';
             const norms = bmiNorms[gender];
             const ageKey = Math.min(latestAgeIdx, 17);
-            let status = "🟢 目前體位正常 [cite: 105]";
-            if (latestBmi >= norms.obese[ageKey]) status = "🔴 判定為：肥胖 [cite: 105]";
-            else if (latestBmi >= norms.over[ageKey]) status = "🟡 判定為：過重 [cite: 105]";
-            diag.innerHTML = `<strong>📍 最新監測 (${ages[latestAgeIdx]})：</strong> BMI 為 ${latestBmi}。${status} `;
+            let status = "🟢 目前體位正常";
+            if (latestBmi >= norms.obese[ageKey]) status = "🔴 判定為：肥胖";
+            else if (latestBmi >= norms.over[ageKey]) status = "🟡 判定為：過重";
+            diag.innerHTML = `<strong>📍 最新監測 (${ages[latestAgeIdx]})：</strong> BMI 為 ${latestBmi}。${status}`;
         }
 
         const ctxH = document.getElementById('heightChart').getContext('2d');
@@ -146,7 +148,7 @@
 
     function exportData() {
         const gender = document.getElementById('pGender').value === 'male' ? '男' : '女';
-        let csv = "\ufeff設計者,亞洲大學護理學系 張華蘋老師\n性別," + gender + "\n年齡,身高,體重,BMI\n";
+        let csv = "\ufeff設計者,亞洲大學護理學系 張華蘋老師\n合作單位,中山醫學大學遺傳代謝科\n性別," + gender + "\n年齡,身高,體重,BMI\n";
         document.querySelectorAll('#input-body tr').forEach(row => {
             const age = row.cells[0].innerText;
             const h = row.querySelector('.h-input').value;
@@ -157,7 +159,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `成長分析_亞大張華蘋老師.csv`;
+        link.download = `成長分析_研究團隊版.csv`;
         link.click();
     }
 </script>
