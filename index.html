@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兒童成長監測系統 - 亞大護理系張華蘋老師</title>
+    <title>兒童成長 BMI 追蹤系統 - 亞大護理系張華蘋老師</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background-color: #f4f7f6; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
-        .instruction-box { background: #fffde6; border: 1px solid #ffe58f; padding: 20px; border-radius: 10px; margin-bottom: 20px; line-height: 1.8; font-size: 15px; }
         .privacy-alert { background: #fdf2f2; border: 1px solid #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; }
+        .instruction-box { background: #fffde6; border: 1px solid #ffe58f; padding: 20px; border-radius: 10px; margin-bottom: 20px; line-height: 1.8; font-size: 15px; }
         .config-section { background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
         .diagnosis-box { background: #f0fdf4; border: 2px solid #22c55e; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: none; }
         .table-container { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
@@ -31,18 +31,18 @@
 <body>
 
 <div class="card">
-    <div class="header"><h2>📊 兒童成長監測系統</h2></div>
+    <div class="header"><h2>📊 兒童成長 BMI 追蹤系統</h2></div>
 
     <div class="privacy-alert">
         🔒 <strong>隱私與醫療聲明：</strong><br>
-        本網站僅供計算參考，<strong>不會存取您的個人資訊或任何檔案與資料</strong>。所有的數據計算皆在您的瀏覽器端完成，不會上傳伺服器。若發現生長數據有任何異常，建議您儘速至醫療院所尋求<strong>專業醫師協助</strong>。
+        本網站僅供計算參考，不會存取您的個人資訊或檔案。若發現生長數據異常，建議儘速至醫療院所尋求專業醫師協助。
     </div>
 
     <div class="instruction-box">
         <strong>💡 使用說明：</strong><br>
-        1. <strong>回溯填寫：</strong>請對照<strong>《兒童健康手冊》</strong>，填寫孩子從出生至今的紀錄，以觀察完整成長趨勢圖。<br>
-        2. <strong>健康辨識：</strong>系統會依據國健署最新標準，分析孩子目前的 BMI 狀態（如：過重或肥胖）。<br>
-        3. <strong>自動引導：</strong>輸入生日後，系統會自動<strong>黃色高亮</strong>目前的年齡欄位。
+        1. <strong>回溯填寫：</strong>對照<strong>《兒童健康手冊》</strong>，填寫孩子從出生至今的紀錄。<br>
+        2. <strong>健康辨識：</strong>系統會分析孩子目前的 BMI 狀態。<br>
+        3. <strong>自動引導：</strong>輸入生日後，系統會高亮目前的年齡欄位。
     </div>
 
     <div class="config-section">
@@ -68,16 +68,16 @@
         <table>
             <thead><tr><th>年齡階段</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
             <tbody id="input-body">
-                <tr id="row-0"><td>出生</td><td><input type="number" step="0.1" class="h-input"></td><td><input type="number" step="0.1" class="w-input"></td></tr>
-                <tr id="row-m6"><td>6個月</td><td><input type="number" step="0.1" class="h-input"></td><td><input type="number" step="0.1" class="w-input"></td></tr>
-                <tr id="row-1"><td>1歲</td><td><input type="number" step="0.1" class="h-input"></td><td><input type="number" step="0.1" class="w-input"></td></tr>
-                <tr id="row-2"><td>2歲</td><td><input type="number" step="0.1" class="h-input"></td><td><input type="number" step="0.1" class="w-input"></td></tr>
+                <tr id="row-0"><td>出生</td><td><input type="number" step="0.1" class="h-input" placeholder="身高"></td><td><input type="number" step="0.1" class="w-input" placeholder="體重"></td></tr>
+                <tr id="row-m6"><td>6個月</td><td><input type="number" step="0.1" class="h-input" placeholder="身高"></td><td><input type="number" step="0.1" class="w-input" placeholder="體重"></td></tr>
+                <tr id="row-1"><td>1歲</td><td><input type="number" step="0.1" class="h-input" placeholder="身高"></td><td><input type="number" step="0.1" class="w-input" placeholder="體重"></td></tr>
+                <tr id="row-2"><td>2歲</td><td><input type="number" step="0.1" class="h-input" placeholder="身高"></td><td><input type="number" step="0.1" class="w-input" placeholder="體重"></td></tr>
             </tbody>
         </table>
     </div>
 
     <div class="btn-group">
-        <button class="btn-chart" onclick="generateAnalysis()">1. 產出成長分析報告</button>
+        <button class="btn-chart" onclick="generateAnalysis()">1. 顯示 BMI 趨勢圖</button>
         <button class="btn-export" onclick="exportData()">2. 匯出成長紀錄 (CSV)</button>
     </div>
 
@@ -100,7 +100,7 @@
     const annualAges = ['3歲', '4歲', '5歲', '6歲', '7歲', '8歲', '9歲', '10歲', '11歲', '12歲', '13歲', '14歲', '15歲', '16歲', '17歲', '18歲'];
     const tbody = document.getElementById('input-body');
     annualAges.forEach((age, i) => {
-        tbody.innerHTML += `<tr id="row-${i+3}"><td>${age}</td><td><input type="number" step="0.1" class="h-input"></td><td><input type="number" step="0.1" class="w-input"></td></tr>`;
+        tbody.innerHTML += `<tr id="row-${i+3}"><td>${age}</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>`;
     });
 
     function calculateAge() {
