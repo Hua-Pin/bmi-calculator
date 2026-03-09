@@ -3,50 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兒童成長 BMI 快速追蹤</title>
+    <title>兒童成長 BMI 追蹤系統 - 亞洲大學護理學系</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f4f7f6; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
-        .table-container { max-height: 450px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; margin-bottom: 20px; }
+        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 650px; margin: 20px auto; padding: 20px; background-color: #f0f4f8; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
+        .author-info { font-size: 15px; color: #2980b9; margin-top: 8px; font-weight: bold; }
+        .purpose { background: #e8f4fd; padding: 15px; border-radius: 8px; font-size: 14px; color: #34495e; margin-bottom: 25px; line-height: 1.6; border-left: 4px solid #3498db; }
+        h2 { color: #2c3e50; margin: 0; font-size: 24px; }
+        .table-container { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
         th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; }
-        td { padding: 8px; text-align: center; border-bottom: 1px solid #f1f1f1; }
-        input { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; }
+        td { padding: 10px; text-align: center; border-bottom: 1px solid #f1f1f1; }
+        input { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; transition: 0.3s; }
         .btn-chart { background: #3498db; }
         .btn-export { background: #27ae60; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .chart-container { margin-top: 30px; height: 400px; }
+        .footer-note { text-align: center; font-size: 12px; color: #95a5a6; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>📊 兒童成長 BMI 追蹤</h2>
+    <div class="header">
+        <h2>📊 兒童成長 BMI 追蹤系統</h2>
+        <div class="author-info">設計者：亞洲大學 護理學系 張華蘋老師</div>
+    </div>
+
+    <div class="purpose">
+        <strong>💡 使用目的：</strong><br>
+        本工具旨在協助家長長期監測孩子從出生到 18 歲的成長趨勢。透過定期記錄身高與體重，系統將自動繪製 BMI 曲線，協助觀察孩子是否處於健康的發育範圍，並及早預防兒童肥胖風險。
+    </div>
     
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>年齡</th>
+                    <th>年齡階段</th>
                     <th>身高 (cm)</th>
                     <th>體重 (kg)</th>
                 </tr>
             </thead>
-            <tbody id="input-body">
-                </tbody>
+            <tbody id="input-body"></tbody>
         </table>
     </div>
 
     <div class="btn-group">
-        <button class="btn-chart" onclick="updateChart()">1. 顯示 BMI 趨勢圖</button>
+        <button class="btn-chart" onclick="updateChart()">1. 產出成長趨勢圖</button>
         <button class="btn-export" onclick="exportData()">2. 匯出紀錄 (CSV)</button>
     </div>
 
     <div class="chart-container">
         <canvas id="bmiChart"></canvas>
+    </div>
+
+    <div class="footer-note">
+        © 2026 亞洲大學護理學系 數位健康照護研究專案
     </div>
 </div>
 
@@ -54,30 +70,20 @@
     const ages = ['出生', '1歲', '2歲', '3歲', '4歲', '5歲', '6歲', '7歲', '8歲', '9歲', '10歲', '11歲', '12歲', '13歲', '14歲', '15歲', '16歲', '17歲', '18歲'];
     const tbody = document.getElementById('input-body');
 
-    // 生成表格
     ages.forEach(age => {
-        tbody.innerHTML += `
-            <tr>
-                <td><strong>${age}</strong></td>
-                <td><input type="number" step="0.1" class="h-input" placeholder="cm"></td>
-                <td><input type="number" step="0.1" class="w-input" placeholder="kg"></td>
-            </tr>`;
+        tbody.innerHTML += `<tr><td><strong>${age}</strong></td><td><input type="number" step="0.1" class="h-input" placeholder="身高"></td><td><input type="number" step="0.1" class="w-input" placeholder="體重"></td></tr>`;
     });
 
     let chart;
     function updateChart() {
         const bmiData = [];
         const rows = document.querySelectorAll('#input-body tr');
-
         rows.forEach(row => {
             const h = parseFloat(row.querySelector('.h-input').value);
             const w = parseFloat(row.querySelector('.w-input').value);
             if (h > 0 && w > 0) {
-                const bmi = (w / Math.pow(h / 100, 2)).toFixed(1);
-                bmiData.push(bmi);
-            } else {
-                bmiData.push(null);
-            }
+                bmiData.push((w / Math.pow(h / 100, 2)).toFixed(1));
+            } else { bmiData.push(null); }
         });
 
         const ctx = document.getElementById('bmiChart').getContext('2d');
@@ -87,12 +93,12 @@
             data: {
                 labels: ages,
                 datasets: [{
-                    label: 'BMI 數值',
+                    label: 'BMI 趨勢曲線',
                     data: bmiData,
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                    borderWidth: 3,
-                    pointRadius: 5,
+                    borderWidth: 4,
+                    pointRadius: 6,
                     spanGaps: true,
                     tension: 0.3
                 }]
@@ -100,29 +106,27 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: { title: { display: true, text: 'BMI (kg/m²)' } }
+                scales: { 
+                    y: { title: { display: true, text: 'BMI (kg/m²)' }, ticks: { stepSize: 2 } },
+                    x: { title: { display: true, text: '年齡' } }
                 }
             }
         });
     }
 
     function exportData() {
-        let csv = "\ufeff年齡,身高(cm),體重(kg),BMI\n";
-        const rows = document.querySelectorAll('#input-body tr');
-        
-        rows.forEach(row => {
+        let csv = "\ufeff設計者,亞洲大學護理學系 張華蘋老師\n年齡,身高(cm),體重(kg),BMI\n";
+        document.querySelectorAll('#input-body tr').forEach(row => {
             const age = row.cells[0].innerText;
             const h = row.querySelector('.h-input').value;
             const w = row.querySelector('.w-input').value;
             let bmi = (h > 0 && w > 0) ? (w / Math.pow(h / 100, 2)).toFixed(1) : "";
             csv += `${age},${h},${w},${bmi}\n`;
         });
-
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `我的成長紀錄.csv`;
+        link.download = `兒童BMI成長紀錄_張華蘋老師團隊.csv`;
         link.click();
     }
 </script>
