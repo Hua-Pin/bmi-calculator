@@ -3,135 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兒童成長數據監測系統 - 亞大護理系張華蘋老師</title>
+    <title>兒童成長百分位辨識系統 - 張華蘋老師</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background-color: #f8fafc; }
+        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background-color: #f4f7f6; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
         .author-info { font-size: 15px; color: #2980b9; margin-top: 8px; font-weight: bold; }
-        .config-section { background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
-        .table-container { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
+        .config-section { background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .diagnosis-box { background: #fffbe6; border: 2px solid #ffe58f; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: none; }
+        .table-container { max-height: 350px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
-        th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; font-size: 14px; }
+        th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; }
         td { padding: 8px; text-align: center; border-bottom: 1px solid #f1f1f1; }
-        input { width: 70px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; text-align: center; width: 90%; }
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         button { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; transition: 0.3s; }
         .btn-chart { background: #3498db; }
         .btn-export { background: #27ae60; }
-        .chart-wrapper { margin-top: 30px; height: 350px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #edf2f7; }
-        .velocity-tag { font-size: 11px; color: #7f8c8d; display: block; margin-top: 2px; height: 14px; }
-        h4 { margin: 10px 0; color: #2d3748; border-left: 4px solid #3498db; padding-left: 10px; }
+        .chart-wrapper { margin-top: 30px; height: 400px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #edf2f7; }
+        .footer-note { text-align: center; font-size: 12px; color: #95a5a6; margin-top: 20px; line-height: 1.5; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div class="header">
-        <h2>📊 兒童成長數據監測系統</h2>
+        <h2>📊 兒童成長百分位辨識系統</h2>
         <div class="author-info">設計者：亞洲大學 護理學系 張華蘋老師</div>
     </div>
 
     <div class="config-section">
-        <label><strong>孩子性別：</strong></label>
-        <select id="pGender">
-            <option value="male">男童 (Boy)</option>
-            <option value="female">女童 (Girl)</option>
-        </select>
+        <div>
+            <label><strong>1. 選擇孩子性別：</strong></label>
+            <select id="pGender">
+                <option value="male">男童 (男孩版)</option>
+                <option value="female">女童 (女孩版)</option>
+            </select>
+        </div>
+        <div>
+            <label><strong>2. 目前年齡：</strong></label>
+            <select id="currentAge">
+                <option value="0">出生</option>
+                <option value="1">1歲</option>
+                <option value="2">2歲</option>
+                <option value="3">3歲</option>
+                <option value="4">4歲</option>
+                <option value="5">5歲</option>
+                <option value="6">6歲</option>
+                <option value="7">7歲</option>
+                <option value="8">8歲</option>
+                <option value="9">9歲</option>
+                <option value="10">10歲</option>
+                <option value="11">11歲</option>
+                <option value="12">12歲</option>
+                <option value="13">13歲</option>
+                <option value="14">14歲</option>
+                <option value="15">15歲</option>
+                <option value="16">16歲</option>
+                <option value="17">17歲</option>
+            </select>
+        </div>
     </div>
+
+    <div id="diagnosis" class="diagnosis-box"></div>
     
     <div class="table-container">
         <table>
-            <thead>
-                <tr>
-                    <th>年齡階段</th>
-                    <th>身高 (cm)</th>
-                    <th>體重 (kg)</th>
-                </tr>
-            </thead>
+            <thead><tr><th>年齡階段</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
             <tbody id="input-body"></tbody>
         </table>
     </div>
 
     <div class="btn-group">
-        <button class="btn-chart" onclick="generateAllCharts()">1. 產出成長趨勢圖</button>
-        <button class="btn-export" onclick="exportData()">2. 匯出研究資料 (CSV)</button>
+        <button class="btn-chart" onclick="generateAnalysis()">1. 辨識百分位與分析</button>
+        <button class="btn-export" onclick="exportData()">2. 匯出紀錄 (CSV)</button>
     </div>
 
     <div id="charts-area" style="display:none;">
-        <div class="chart-wrapper"><h4>📏 身高成長趨勢 (Height)</h4><canvas id="heightChart"></canvas></div>
-        <div class="chart-wrapper"><h4>⚖️ 體重成長趨勢 (Weight)</h4><canvas id="weightChart"></canvas></div>
-        <div class="chart-wrapper"><h4>📈 BMI 變化趨勢</h4><canvas id="bmiChart"></canvas></div>
+        <div class="chart-wrapper"><h4>📈 BMI 趨勢對照 (含 97, 85, 50, 15, 3 百分位)</h4><canvas id="bmiChart"></canvas></div>
+    </div>
+
+    <div class="footer-note">
+        參考依據：國民健康署兒童生長曲線百分位圖及 BMI 建議值 [cite: 105, 133, 139]<br>
+        © 2026 亞洲大學護理學系 張華蘋老師團隊
     </div>
 </div>
 
 <script>
-    const ages = ['出生', '1歲', '2歲', '3歲', '4歲', '5歲', '6歲', '7歲', '8歲', '9歲', '10歲', '11歲', '12歲', '13歲', '14歲', '15歲', '16歲', '17歲', '18歲'];
-    const tbody = document.getElementById('input-body');
+    // 整合國健署 BMI 標準數據 
+    const bmiNorms = {
+        male: {
+            thin: [11.5, 14.8, 14.2, 13.7, 13.4, 13.3, 13.5, 13.8, 14.1, 14.3, 14.5, 14.8, 15.2, 15.7, 16.3, 16.9, 17.4, 17.8],
+            over: [14.8, 18.3, 17.4, 17.0, 16.7, 16.7, 16.9, 17.9, 19.0, 19.5, 20.0, 20.7, 21.3, 21.9, 22.5, 22.9, 23.3, 23.5],
+            obese: [15.8, 19.2, 18.3, 17.8, 17.6, 17.7, 18.5, 20.3, 21.6, 22.3, 22.7, 23.2, 23.9, 24.5, 25.0, 25.4, 25.6, 25.6]
+        },
+        female: {
+            thin: [11.5, 14.2, 13.7, 13.5, 13.2, 13.1, 13.1, 13.4, 13.8, 14.0, 14.3, 14.7, 15.2, 15.7, 16.3, 16.7, 17.1, 17.3],
+            over: [14.7, 17.9, 17.2, 16.9, 16.8, 17.0, 17.2, 17.7, 18.4, 19.1, 19.7, 20.5, 21.3, 21.9, 22.5, 22.7, 22.7, 22.7],
+            obese: [15.5, 19.0, 18.1, 17.8, 17.9, 18.1, 18.8, 19.6, 20.7, 21.3, 22.0, 22.7, 23.5, 24.3, 24.9, 25.2, 25.3, 25.3]
+        }
+    };
 
-    ages.forEach((age, i) => {
-        tbody.innerHTML += `
-            <tr>
-                <td><strong>${age}</strong></td>
-                <td>
-                    <input type="number" step="0.1" class="h-input" onchange="calcVel(${i})">
-                    <span id="h-vel-${i}" class="velocity-tag"></span>
-                </td>
-                <td>
-                    <input type="number" step="0.1" class="w-input" onchange="calcVel(${i})">
-                    <span id="w-vel-${i}" class="velocity-tag"></span>
-                </td>
-            </tr>`;
+    const ages = ['出生', '1歲', '2歲', '3歲', '4歲', '5歲', '6歲', '7歲', '8歲', '9歲', '10歲', '11歲', '12歲', '13歲', '14歲', '15歲', '16歲', '17歲'];
+    const tbody = document.getElementById('input-body');
+    ages.forEach(age => {
+        tbody.innerHTML += `<tr><td><strong>${age}</strong></td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>`;
     });
 
-    function calcVel(i) {
-        if (i === 0) return;
-        const h = parseFloat(document.querySelectorAll('.h-input')[i].value);
-        const hP = parseFloat(document.querySelectorAll('.h-input')[i-1].value);
-        const w = parseFloat(document.querySelectorAll('.w-input')[i].value);
-        const wP = parseFloat(document.querySelectorAll('.w-input')[i-1].value);
-        if (h && hP) document.getElementById(`h-vel-${i}`).innerText = `↑${(h - hP).toFixed(1)} cm`;
-        if (w && wP) document.getElementById(`w-vel-${i}`).innerText = `↑${(w - wP).toFixed(1)} kg`;
-    }
+    let bmiChart;
+    function generateAnalysis() {
+        document.getElementById('charts-area').style.display = 'block';
+        const gender = document.getElementById('pGender').value;
+        const currentAgeIdx = parseInt(document.getElementById('currentAge').value);
+        const bmiData = [];
+        let latestBmi = null;
 
-    let charts = {};
-    function createChart(id, label, data, color) {
-        const ctx = document.getElementById(id).getContext('2d');
-        if (charts[id]) charts[id].destroy();
-        charts[id] = new Chart(ctx, {
+        const hInputs = document.querySelectorAll('.h-input');
+        const wInputs = document.querySelectorAll('.w-input');
+
+        ages.forEach((_, i) => {
+            const h = parseFloat(hInputs[i].value);
+            const w = parseFloat(wInputs[i].value);
+            if (h > 0 && w > 0) {
+                const bmi = (w / Math.pow(h / 100, 2)).toFixed(1);
+                bmiData.push(bmi);
+                if (i === currentAgeIdx) latestBmi = bmi;
+            } else { bmiData.push(null); }
+        });
+
+        // 顯示百分位辨識結果 [cite: 34, 105, 81]
+        const diag = document.getElementById('diagnosis');
+        if (latestBmi) {
+            diag.style.display = 'block';
+            const norms = bmiNorms[gender];
+            let status = "🟢 正常 (第 15-85 百分位) [cite: 34, 81]";
+            let advice = "成長指標落在正常範圍內，請依循目前的成長走勢持續觀察。 ";
+            
+            if (latestBmi >= norms.obese[currentAgeIdx]) {
+                status = "🔴 肥胖 (超過第 97 百分位) [cite: 105, 81]";
+                advice = "體位已達肥胖標準，建議請專業醫師進行評估檢查。 ";
+            } else if (latestBmi >= norms.over[currentAgeIdx]) {
+                status = "🟡 過重 (第 85-95 百分位) [cite: 105, 81]";
+                advice = "體重已有偏高情形，建議增加日常體能活動並調整飲食。 [cite: 139]";
+            } else if (latestBmi < norms.thin[currentAgeIdx]) {
+                status = "🔵 過輕 (低於第 3 百分位) [cite: 105, 81]";
+                advice = "體位偏輕，應注意營養攝取，並請醫師評估生長連線走勢。 ";
+            }
+
+            diag.innerHTML = `
+                <strong>📍 ${ages[currentAgeIdx]} 健康辨識報告：</strong><br>
+                ● 您的 BMI：<strong>${latestBmi}</strong><br>
+                ● 生長百分位位置：<strong>${status}</strong><br>
+                ● 專業建議：${advice}
+            `;
+        }
+
+        const ctx = document.getElementById('bmiChart').getContext('2d');
+        if (bmiChart) bmiChart.destroy();
+        bmiChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ages,
-                datasets: [{ label, data, borderColor: color, borderWidth: 3, pointRadius: 4, spanGaps: true, tension: 0.3 }]
+                datasets: [
+                    { label: '孩子 BMI 走勢', data: bmiData, borderColor: '#000', borderWidth: 4, z: 10 },
+                    { label: '97% (肥胖)', data: bmiNorms[gender].obese, borderColor: '#e74c3c', borderDash: [5, 5], fill: false, pointRadius: 0 },
+                    { label: '85% (過重)', data: bmiNorms[gender].over, borderColor: '#e67e22', borderDash: [5, 5], fill: false, pointRadius: 0 },
+                    { label: '3% (過輕)', data: bmiNorms[gender].thin, borderColor: '#3498db', borderDash: [5, 5], fill: false, pointRadius: 0 }
+                ]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
-    }
-
-    function generateAllCharts() {
-        document.getElementById('charts-area').style.display = 'block';
-        const hData = [], wData = [], bmiData = [];
-        const rows = document.querySelectorAll('#input-body tr');
-
-        rows.forEach(row => {
-            const h = parseFloat(row.querySelector('.h-input').value);
-            const w = parseFloat(row.querySelector('.w-input').value);
-            hData.push(h || null);
-            wData.push(w || null);
-            bmiData.push((h > 0 && w > 0) ? (w / Math.pow(h / 100, 2)).toFixed(1) : null);
-        });
-
-        createChart('heightChart', '身高 (cm)', hData, '#3498db');
-        createChart('weightChart', '體重 (kg)', wData, '#e67e22');
-        createChart('bmiChart', 'BMI 數值', bmiData, '#2ecc71');
-        
-        window.scrollTo({ top: document.getElementById('charts-area').offsetTop, behavior: 'smooth' });
+        window.scrollTo({ top: diag.offsetTop, behavior: 'smooth' });
     }
 
     function exportData() {
         const gender = document.getElementById('pGender').value === 'male' ? '男' : '女';
-        let csv = "\ufeff設計者,亞洲大學護理學系 張華蘋老師\n性別," + gender + "\n年齡,身高(cm),體重(kg),BMI\n";
+        let csv = "\ufeff設計者,亞洲大學護理學系 張華蘋老師\n性別," + gender + "\n年齡,身高,體重,BMI\n";
         document.querySelectorAll('#input-body tr').forEach(row => {
             const age = row.cells[0].innerText;
             const h = row.querySelector('.h-input').value;
@@ -142,7 +190,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `兒童成長分析紀錄_張華蘋老師團隊.csv`;
+        link.download = `生長百分位紀錄_張華蘋老師.csv`;
         link.click();
     }
 </script>
