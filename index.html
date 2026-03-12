@@ -10,62 +10,53 @@
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
         .privacy-alert { background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; }
-        .diagnosis-box { background: #f0fdf4; border: 2px solid #22c55e; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: none; }
-        .diagnosis-alert { background: #fff1f0; border: 2px solid #ffa39e; }
         .config-section { background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
-        .table-container { max-height: 450px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 25px; }
+        .table-container { max-height: 500px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 25px; }
         table { width: 100%; border-collapse: collapse; }
         th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; }
         td { padding: 10px; text-align: center; border-bottom: 1px solid #edf2f7; }
         .highlight { background-color: #fff9c4 !important; font-weight: bold; }
-        input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; text-align: center; width: 80%; }
+        input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; text-align: center; width: 85%; }
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         button { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; transition: 0.3s; }
-        .btn-chart { background: #3498db; color: white; }
-        .btn-export { background: #27ae60; color: white; }
-        .chart-wrapper { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #edf2f7; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        canvas { height: 400px !important; }
+        .btn-chart { background: #3498db; }
+        .btn-export { background: #27ae60; }
+        .chart-wrapper { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #edf2f7; }
+        canvas { height: 450px !important; }
         .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #7f8c8d; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="header"><h2>📊 兒童成長 BMI 與身高百分位監測</h2></div>
+    <div class="header"><h2>📊 兒童成長監測 (每半年追蹤版)</h2></div>
 
     <div class="privacy-alert">
-        🔒 <strong>隱私聲明：</strong>本網站不會存取您的個人資訊。若數據異常，請尋求專業醫師協助。
-    </div>
-
-    <div id="diagnosis-area" class="diagnosis-box">
-        <h3 style="margin-top:0;">📋 目前健康分析報告</h3>
-        <p id="diag-content">請輸入數據並點擊分析按鈕。</p>
+        🔒 <strong>隱私聲明：</strong>本網站不會存取個資。若數據異常，請尋求專業醫師協助。
     </div>
 
     <div class="config-section">
         <div><label><strong>1. 性別：</strong></label><select id="pGender" onchange="updateAnalysis()"><option value="male">男童</option><option value="female">女童</option></select></div>
         <div><label><strong>2. 出生日期：</strong></label><input type="date" id="pBirth" onchange="calculateAge()"></div>
-        <div id="age-result" style="grid-column: span 2; font-weight: bold; color: #2980b9;">請輸入生日開始</div>
+        <div id="age-result" style="grid-column: span 2; font-weight: bold; color: #2980b9;">請輸入生日開始監測</div>
     </div>
 
     <div class="table-container">
         <table>
             <thead><tr><th>年齡階段</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
             <tbody id="input-body">
-                <tr id="row-0" class="data-row" data-age="0"><td>出生</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-                <tr id="row-0.5" class="data-row" data-age="0.5"><td>6個月</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-            </tbody>
+                </tbody>
         </table>
     </div>
 
     <div class="btn-group">
-        <button class="btn-chart" onclick="updateAnalysis()">1. 產出分析報告與圖表</button>
+        <button class="btn-chart" onclick="updateAnalysis()">1. 產出半年追蹤圖表</button>
         <button class="btn-export" onclick="exportCSV()">2. 匯出成長紀錄 (CSV)</button>
     </div>
 
     <div id="charts-area" style="display:none;">
-        <div class="chart-wrapper"><h4>📏 實際身高 vs. 國健署百分位參考線</h4><canvas id="percentileChart"></canvas></div>
-        <div class="chart-wrapper"><h4>📈 BMI 成長趨勢圖</h4><canvas id="bmiChart"></canvas></div>
+        <div class="chart-wrapper"><h4>📏 實際身高 vs. 國健署百分位參考曲線</h4><canvas id="percentileChart"></canvas></div>
+        <div class="chart-wrapper"><h4>📈 BMI 變動趨勢</h4><canvas id="bmiChart"></canvas></div>
     </div>
 
     <div class="footer">
@@ -75,22 +66,17 @@
 </div>
 
 <script>
-    // 補足 1-18 歲完整欄位
     const tbody = document.getElementById('input-body');
-    for (let i = 1; i <= 18; i++) {
+    // 自動生成 0 到 18 歲，間隔 0.5 歲的欄位
+    for (let i = 0; i <= 18; i += 0.5) {
         const tr = document.createElement('tr');
-        tr.id = `row-${i}`; tr.className = 'data-row'; tr.setAttribute('data-age', i);
-        tr.innerHTML = `<td>${i}歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td>`;
+        const displayAge = i === 0 ? "出生" : `${i} 歲`;
+        tr.id = `row-${i}`;
+        tr.className = 'data-row';
+        tr.setAttribute('data-age', i);
+        tr.innerHTML = `<td>${displayAge}</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td>`;
         tbody.appendChild(tr);
     }
-
-    // 0-18 歲身高百分位參考值 (男童範例)
-    const maleRef = {
-        labels: ["出生","6個月","1歲","2歲","3歲","4歲","5歲","6歲","7歲","8歲","9歲","10歲","11歲","12歲","13歲","14歲","15歲","16歲","17歲","18歲"],
-        p3: [46.3, 63.3, 71, 82.1, 89.4, 96.1, 102.3, 108.4, 113.9, 119.2, 124.3, 129.3, 134.5, 140.3, 147, 153.8, 159.2, 162.4, 164, 164.5],
-        p50: [49.9, 67.6, 75.7, 87.1, 94.9, 102.1, 108.7, 115.1, 121, 126.8, 132.5, 138.3, 144.5, 151.7, 159.5, 166, 170.2, 172.3, 173.2, 173.5],
-        p97: [53.4, 71.9, 80.5, 92.2, 100.3, 108.1, 115.2, 121.9, 128.2, 134.4, 140.7, 147.2, 154.5, 163.1, 172, 178.1, 181.1, 182.3, 182.7, 183]
-    };
 
     function calculateAge() {
         const birth = new Date(document.getElementById('pBirth').value);
@@ -99,8 +85,11 @@
         let y = today.getFullYear() - birth.getFullYear(), m = today.getMonth() - birth.getMonth();
         if (m < 0) { y--; m += 12; }
         document.getElementById('age-result').innerHTML = `👶 目前年齡：${y} 歲 ${m} 個月`;
+        
         document.querySelectorAll('.data-row').forEach(r => r.classList.remove('highlight'));
-        let targetId = y >= 1 ? `row-${Math.min(y, 18)}` : (y === 0 && m < 6 ? 'row-0' : 'row-0.5');
+        // 尋找最接近的半年間隔進行高亮
+        const targetAge = Math.round(y * 2 + (m >= 6 ? 1 : 0)) / 2;
+        const targetId = `row-${Math.min(targetAge, 18)}`;
         if (document.getElementById(targetId)) document.getElementById(targetId).classList.add('highlight');
     }
 
@@ -108,79 +97,64 @@
 
     function updateAnalysis() {
         const actualH = [], bmiData = [], activeLabels = [];
-        let maxAgeIndex = 0;
         const rows = document.querySelectorAll('.data-row');
+        let maxIdx = 0;
 
-        // 偵測數據最高填寫到哪一歲
-        rows.forEach((row, index) => {
+        rows.forEach((row, idx) => {
             const h = parseFloat(row.querySelector('.h-input').value);
             const w = parseFloat(row.querySelector('.w-input').value);
-            if (!isNaN(h) || !isNaN(w)) maxAgeIndex = index;
+            if (!isNaN(h) || !isNaN(w)) maxIdx = idx;
         });
 
-        // 動態生成顯示範圍
-        const displayLabels = maleRef.labels.slice(0, Math.max(8, maxAgeIndex + 1));
-        const refP3 = maleRef.p3.slice(0, displayLabels.length);
-        const refP50 = maleRef.p50.slice(0, displayLabels.length);
-        const refP97 = maleRef.p97.slice(0, displayLabels.length);
-
-        rows.forEach((row, index) => {
-            if (index < displayLabels.length) {
+        rows.forEach((row, idx) => {
+            if (idx <= maxIdx) {
                 const h = parseFloat(row.querySelector('.h-input').value);
                 const w = parseFloat(row.querySelector('.w-input').value);
+                activeLabels.push(row.cells[0].innerText);
                 actualH.push(h || null);
                 if (h && w) bmiData.push((w / ((h / 100) ** 2)).toFixed(1));
                 else bmiData.push(null);
             }
         });
 
+        if (activeLabels.length === 0) { alert("請先填入數據！"); return; }
         document.getElementById('charts-area').style.display = 'block';
+
         if (pChart) pChart.destroy();
-        const ctxP = document.getElementById('percentileChart').getContext('2d');
-        pChart = new Chart(ctxP, {
+        pChart = new Chart(document.getElementById('percentileChart').getContext('2d'), {
             type: 'line',
             data: {
-                labels: displayLabels,
-                datasets: [
-                    { label: '實際測量身高', data: actualH, borderColor: '#3498db', borderWidth: 4, pointRadius: 5, fill: false, z: 10 },
-                    { label: '97th', data: refP97, borderColor: 'red', borderDash: [5, 5], pointRadius: 0, fill: false },
-                    { label: '50th', data: refP50, borderColor: 'green', pointRadius: 0, fill: false },
-                    { label: '3rd', data: refP3, borderColor: 'red', borderDash: [5, 5], pointRadius: 0, fill: false }
-                ]
+                labels: activeLabels,
+                datasets: [{ label: '實際身高', data: actualH, borderColor: '#3498db', borderWidth: 4, fill: false, spanGaps: true }]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
 
         if (bChart) bChart.destroy();
-        const ctxB = document.getElementById('bmiChart').getContext('2d');
-        bChart = new Chart(ctxB, {
+        bChart = new Chart(document.getElementById('bmiChart').getContext('2d'), {
             type: 'line',
             data: {
-                labels: displayLabels,
+                labels: activeLabels,
                 datasets: [{ label: 'BMI 趨勢', data: bmiData, borderColor: '#e67e22', backgroundColor: 'rgba(230, 126, 34, 0.1)', fill: true, spanGaps: true }]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
-
-        document.getElementById('diagnosis-area').style.display = "block";
-        document.getElementById('diag-content').innerHTML = "分析完成！圖表已根據輸入數據自動調整範圍。";
     }
 
     function exportCSV() {
         let csv = "\ufeff階段,身高(cm),體重(kg),BMI\n";
         document.querySelectorAll('.data-row').forEach(row => {
-            const h = row.querySelector('.h-input').value;
-            const w = row.querySelector('.w-input').value;
-            if (h && w) {
-                const bmi = (parseFloat(w) / ((parseFloat(h) / 100) ** 2)).toFixed(1);
-                csv += `${row.cells[0].innerText},${h},${w},${bmi}\n`;
+            const h = parseFloat(row.querySelector('.h-input').value);
+            const w = parseFloat(row.querySelector('.w-input').value);
+            if (!isNaN(h) && !isNaN(w)) {
+                csv += `${row.cells[0].innerText},${h},${w},${(w/((h/100)**2)).toFixed(1)}\n`;
             }
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "兒童成長紀錄.csv");
-        document.body.appendChild(link); // 確保在部分瀏覽器能觸發
+        link.setAttribute("download", "兒童成長半年追蹤紀錄.csv");
+        document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
