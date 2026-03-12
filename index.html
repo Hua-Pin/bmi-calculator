@@ -2,203 +2,94 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兒童成長 BMI 監測系統 - 亞大張華蘋老師</title>
+    <title>兒童成長監測系統 - 百分位專業版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 850px; margin: 20px auto; padding: 20px; background-color: #f4f7f6; line-height: 1.6; }
+        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 850px; margin: 20px auto; padding: 20px; background-color: #f4f7f6; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; color: #2c3e50; }
-        .privacy-alert { background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; }
-        .diagnosis-box { background: #f0fdf4; border: 2px solid #22c55e; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: none; }
-        .diagnosis-alert { background: #fff1f0; border: 2px solid #ffa39e; } /* 異常時的顏色 */
-        .instruction-box { background: #fffde6; border: 1px solid #ffe58f; padding: 20px; border-radius: 10px; margin-bottom: 20px; font-size: 15px; }
-        .config-section { background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
+        .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
+        .config-section { background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .table-container { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 25px; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; }
-        td { padding: 10px; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .highlight { background-color: #fff9c4 !important; font-weight: bold; }
-        input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; text-align: center; width: 80%; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        button { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; transition: 0.3s; }
-        .btn-chart { background: #3498db; }
-        .btn-export { background: #27ae60; }
-        .chart-wrapper { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #edf2f7; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        canvas { width: 100% !important; height: 350px !important; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; }
+        td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; }
+        input { width: 80%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
+        .btn-chart { background: #3498db; color: white; padding: 15px; width: 100%; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .chart-wrapper { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #edf2f7; }
+        canvas { height: 450px !important; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="header"><h2>📊 兒童成長 BMI 監測系統</h2></div>
-
-    <div class="privacy-alert">
-        🔒 <strong>隱私與醫療聲明：</strong><br>
-        本網站僅供參考，<strong>不會存取您的個人資訊或檔案</strong>。若發現數據異常，建議儘速尋求專業醫師協助。
-    </div>
-
-    <div id="diagnosis-area" class="diagnosis-box">
-        <h3 id="diag-title" style="margin-top:0;">📋 目前體位分析報告</h3>
-        <p id="diag-content">請輸入數據並點擊分析按鈕。</p>
-    </div>
-
-    <div class="instruction-box">
-        <strong>💡 使用說明：</strong><br>
-        1. <strong>回溯填寫：</strong>對照《兒童健康手冊》填寫孩子各階段的身高體重。<br>
-        2. <strong>數據更新：</strong>輸入生日後，系統會自動標記目前的年齡位置。
-    </div>
+    <div class="header"><h2>📊 兒童身高百分位監測系統</h2></div>
 
     <div class="config-section">
-        <div>
-            <label><strong>1. 兒童性別：</strong></label>
-            <select id="pGender" onchange="generateAnalysis()">
-                <option value="male">男童</option>
-                <option value="female">女童</option>
-            </select>
-        </div>
-        <div>
-            <label><strong>2. 出生日期：</strong></label>
-            <input type="date" id="pBirth" onchange="calculateAge()">
-        </div>
-        <div id="age-result" style="grid-column: span 2; font-weight: bold; color: #2980b9;">請輸入生日以開始</div>
+        <div><label><strong>1. 性別：</strong></label><select id="pGender"><option value="male">男童</option></select></div>
+        <div><label><strong>2. 出生日期：</strong></label><input type="date" id="pBirth"></div>
     </div>
 
     <div class="table-container">
         <table>
             <thead><tr><th>年齡階段</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
             <tbody id="input-body">
-                <tr id="row-0" class="data-row" data-age="0"><td>出生</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-                <tr id="row-0.5" class="data-row" data-age="0.5"><td>6個月</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-                <tr id="row-1" class="data-row" data-age="1"><td>1歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-                <tr id="row-2" class="data-row" data-age="2"><td>2歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
+                <tr class="data-row" data-age="0"><td>出生</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
+                <tr class="data-row" data-age="0.5"><td>6個月</td><td><input type="number" step="0.1" class="h-input"></td><td><input type="number" step="0.1" class="w-input"></td></tr>
+                <tr class="data-row" data-age="1"><td>1歲</td><td><input type="number" step="0.1" class="h-input"></td><td><input type="number" step="0.1" class="w-input"></td></tr>
             </tbody>
         </table>
     </div>
 
-    <div class="btn-group">
-        <button class="btn-chart" onclick="generateAnalysis()">1. 產出分析報告與圖表</button>
-        <button class="btn-export" onclick="exportCSV()">2. 匯出成長紀錄 (CSV)</button>
-    </div>
+    <button class="btn-chart" onclick="generateAnalysis()">產出百分位對比圖表</button>
 
     <div id="charts-area" style="display:none;">
-        <div class="chart-wrapper"><h4>📏 身高成長曲線</h4><canvas id="heightChart"></canvas></div>
-        <div class="chart-wrapper"><h4>📈 BMI 趨勢圖</h4><canvas id="bmiChart"></canvas></div>
-    </div>
-
-    <div class="footer">
-        <div style="color: #2980b9; font-weight: bold; font-size: 16px; margin-bottom: 5px;">設計者：亞洲大學 護理學系 張華蘋老師</div>
-        <div>© 2026 亞洲大學護理學系 與 中山醫學大學遺傳代謝科 研究團隊</div>
-        <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">數據標準：國健署兒童生長 BMI 建議值 (2026.01 版)</div>
+        <div class="chart-wrapper"><h4>📏 實際身高 vs. 國健署百分位參考線</h4><canvas id="percentileChart"></canvas></div>
     </div>
 </div>
 
 <script>
-    // 依據國健署 PDF 建議值設計的判斷邏輯 
-    const bmiStandards = {
+    // 根據老師提供之圖片數據設定
+    const refData = {
         male: {
-            0: { thin: 11.5, normal: 14.8, overweight: 15.8 },
-            0.5: { thin: 15.2, normal: 18.9, overweight: 19.9 },
-            1: { thin: 14.8, normal: 18.3, overweight: 19.2 },
-            2: { thin: 14.2, normal: 17.4, overweight: 18.3 },
-            6: { thin: 13.5, normal: 16.9, overweight: 18.5 }
-            // ... 可視需要補足 3-18 歲各年度數據 
-        },
-        female: {
-            0: { thin: 11.5, normal: 14.7, overweight: 15.5 },
-            0.5: { thin: 14.6, normal: 18.6, overweight: 19.6 },
-            1: { thin: 14.2, normal: 17.9, overweight: 19.0 },
-            2: { thin: 13.7, normal: 17.2, overweight: 18.1 },
-            6: { thin: 13.1, normal: 17.2, overweight: 18.8 }
+            ages: ["出生", "6個月", "1歲"],
+            p3: [46.3, 63.3, 71.0], // 出生 46.3
+            p50: [49.9, 67.6, 75.7], // 出生 49.9
+            p97: [53.4, 71.9, 80.5]  // 出生 53.4
         }
     };
 
-    const tbody = document.getElementById('input-body');
-    for (let i = 3; i <= 18; i++) {
-        const tr = document.createElement('tr');
-        tr.id = `row-${i}`; tr.className = 'data-row'; tr.setAttribute('data-age', i);
-        tr.innerHTML = `<td>${i}歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td>`;
-        tbody.appendChild(tr);
-    }
-
-    let currentAgeY = 0, currentAgeM = 0;
-
-    function calculateAge() {
-        const birth = new Date(document.getElementById('pBirth').value);
-        if (isNaN(birth)) return;
-        const today = new Date();
-        currentAgeY = today.getFullYear() - birth.getFullYear();
-        currentAgeM = today.getMonth() - birth.getMonth();
-        if (currentAgeM < 0) { currentAgeY--; currentAgeM += 12; }
-        document.getElementById('age-result').innerHTML = `👶 孩子目前年齡：${currentAgeY} 歲 ${currentAgeM} 個月`;
-        document.querySelectorAll('.data-row').forEach(r => r.classList.remove('highlight'));
-        let targetId = currentAgeY >= 3 ? `row-${Math.min(currentAgeY, 18)}` : (currentAgeY === 0 && currentAgeM < 6 ? 'row-0' : (currentAgeY === 0 ? 'row-0.5' : `row-${currentAgeY}`));
-        document.getElementById(targetId).classList.add('highlight');
-    }
-
-    let hChart, bChart;
+    let pChart;
 
     function generateAnalysis() {
-        const gender = document.getElementById('pGender').value;
-        const labels = [], hData = [], bmiData = [];
-        const rows = document.querySelectorAll('.data-row');
-        let latestBMI = 0, latestAge = 0;
-
-        rows.forEach(row => {
-            const ageVal = parseFloat(row.getAttribute('data-age'));
-            const ageText = row.cells[0].innerText;
+        const labels = refData.male.ages;
+        const actualH = [];
+        document.querySelectorAll('.data-row').forEach(row => {
             const h = parseFloat(row.querySelector('.h-input').value);
-            const w = parseFloat(row.querySelector('.w-input').value);
-
-            if (!isNaN(h) && !isNaN(w)) {
-                const bmi = (w / ((h / 100) ** 2)).toFixed(1);
-                labels.push(ageText);
-                hData.push(h);
-                bmiData.push(bmi);
-                latestBMI = parseFloat(bmi);
-                latestAge = ageVal;
-            }
+            actualH.push(h || null);
         });
-
-        if (labels.length === 0) { alert("請填寫數據！"); return; }
-        
-        // 體位診斷邏輯 
-        let status = "正常", advice = "請繼續保持均衡飲食與規律運動。", isAlert = false;
-        const std = bmiStandards[gender][latestAge] || { thin: 14, normal: 18, overweight: 22 }; // 簡化示範
-
-        if (latestBMI >= std.overweight) { 
-            status = "肥胖"; advice = "⚠️ 提醒：BMI 已達肥胖標準，建議諮詢小兒科醫師或營養師，調整飲食習慣並增加體能活動。"; isAlert = true;
-        } else if (latestBMI >= std.normal && latestBMI < std.overweight) {
-            status = "過重"; advice = "⚠️ 提醒：BMI 偏向過重，建議注意含糖飲料攝取，規律運動。"; isAlert = true;
-        } else if (latestBMI < std.thin) {
-            status = "過輕"; advice = "⚠️ 提醒：體重偏輕，請注意營養攝取是否均衡。"; isAlert = true;
-        }
-
-        const diagArea = document.getElementById('diagnosis-area');
-        diagArea.className = isAlert ? "diagnosis-box diagnosis-alert" : "diagnosis-box";
-        diagArea.style.display = "block";
-        document.getElementById('diag-content').innerHTML = `<strong>最後記錄年齡：</strong>${latestAge} 歲<br><strong>目前體重狀況：</strong><span style="font-size:1.2em; color:${isAlert?'#e74c3c':'#27ae60'}">${status} (BMI: ${latestBMI})</span><br><br>${advice}`;
 
         document.getElementById('charts-area').style.display = 'block';
-        if (hChart) hChart.destroy(); if (bChart) bChart.destroy();
-        const ctxH = document.getElementById('heightChart').getContext('2d');
-        hChart = new Chart(ctxH, { type: 'line', data: { labels: labels, datasets: [{ label: '身高 (cm)', data: hData, borderColor: '#3498db', fill: false }] } });
-        const ctxB = document.getElementById('bmiChart').getContext('2d');
-        bChart = new Chart(ctxB, { type: 'line', data: { labels: labels, datasets: [{ label: 'BMI 值', data: bmiData, borderColor: '#e67e22', fill: false }] } });
-    }
+        if (pChart) pChart.destroy();
 
-    function exportCSV() {
-        let csv = "\ufeff階段,身高(cm),體重(kg),BMI\n";
-        document.querySelectorAll('.data-row').forEach(row => {
-            const h = row.querySelector('.h-input').value, w = row.querySelector('.w-input').value;
-            if (h && w) csv += `${row.cells[0].innerText},${h},${w},${(w/((h/100)**2)).toFixed(1)}\n`;
+        const ctx = document.getElementById('percentileChart').getContext('2d');
+        pChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: '實際測量身高', data: actualH, borderColor: '#2980b9', borderWidth: 4, pointRadius: 6, pointBackgroundColor: '#2980b9', z: 10, fill: false },
+                    { label: '97th 百分位', data: refData.male.p97, borderColor: '#e74c3c', borderDash: [5, 5], fill: false, pointRadius: 0 },
+                    { label: '50th 百分位 (平均)', data: refData.male.p50, borderColor: '#27ae60', fill: false, pointRadius: 0 },
+                    { label: '3rd 百分位', data: refData.male.p3, borderColor: '#e74c3c', borderDash: [5, 5], fill: false, pointRadius: 0 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { title: { display: true, text: '身高 (cm)' } } },
+                plugins: { tooltip: { mode: 'index', intersect: false } }
+            }
         });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "兒童成長紀錄.csv");
-        link.click();
     }
 </script>
 </body>
