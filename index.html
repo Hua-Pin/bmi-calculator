@@ -3,122 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兒童成長 BMI 追蹤系統 - 亞大護理系張華蘋老師</title>
+    <title>兒童成長監測系統 - 亞大張華蘋老師</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background-color: #f4f7f6; }
+        body { font-family: "Microsoft JhengHei", sans-serif; max-width: 850px; margin: 20px auto; padding: 20px; background-color: #f4f7f6; line-height: 1.6; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; }
-        .privacy-alert { background: #fdf2f2; border: 1px solid #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; }
-        .instruction-box { background: #fffde6; border: 1px solid #ffe58f; padding: 20px; border-radius: 10px; margin-bottom: 20px; line-height: 1.8; font-size: 15px; }
+        .header { text-align: center; border-bottom: 2px solid #3498db; margin-bottom: 20px; padding-bottom: 15px; color: #2c3e50; }
+        .privacy-alert { background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; }
+        .instruction-box { background: #fffde6; border: 1px solid #ffe58f; padding: 20px; border-radius: 10px; margin-bottom: 20px; font-size: 15px; }
         .config-section { background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
-        .diagnosis-box { background: #f0fdf4; border: 2px solid #22c55e; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: none; }
-        .table-container { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; }
+        .table-container { max-height: 450px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
         th { position: sticky; top: 0; background: #3498db; color: white; padding: 12px; z-index: 10; }
-        td { padding: 8px; text-align: center; border-bottom: 1px solid #f1f1f1; }
+        td { padding: 10px; text-align: center; border-bottom: 1px solid #edf2f7; }
         .highlight { background-color: #fff9c4 !important; font-weight: bold; }
-        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; text-align: center; width: 90%; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; text-align: center; width: 80%; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
         button { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; transition: 0.3s; }
         .btn-chart { background: #3498db; }
+        .btn-chart:hover { background: #2980b9; }
         .btn-export { background: #27ae60; }
-        .chart-wrapper { margin-top: 30px; height: 450px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #edf2f7; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
-        .author-info { font-size: 16px; color: #2980b9; font-weight: bold; margin-bottom: 5px; }
+        .chart-wrapper { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #edf2f7; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        canvas { width: 100% !important; height: 400px !important; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="header"><h2>📊 兒童成長 BMI 追蹤系統</h2></div>
+    <div class="header"><h2>📊 兒童成長 BMI 監測系統</h2></div>
 
     <div class="privacy-alert">
         🔒 <strong>隱私與醫療聲明：</strong><br>
-        本網站僅供計算參考，不會存取個人資訊或檔案。若發現生長數據異常，建議儘速至醫療院所尋求專業醫師協助。
+        本網站僅供參考，<strong>不會存取您的個人資訊或檔案</strong>。若發現數據異常，建議儘速尋求專業醫師協助。
     </div>
 
     <div class="instruction-box">
         <strong>💡 使用說明：</strong><br>
-        1. <strong>回溯填寫：</strong>對照<strong>《兒童健康手冊》</strong>，填寫孩子從出生至今的紀錄。<br>
-        2. <strong>健康辨識：</strong>系統會分析孩子目前的 BMI 狀態。<br>
-        3. <strong>自動引導：</strong>輸入生日後，系統會高亮目前的年齡欄位。
+        1. <strong>回溯填寫：</strong>對照《兒童健康手冊》填寫孩子各階段的身高體重。<br>
+        2. <strong>數據更新：</strong>輸入生日後，系統會自動標記目前的年齡位置。
     </div>
 
     <div class="config-section">
         <div>
-            <label><strong>1. 選擇性別：</strong></label>
-            <select id="pGender">
-                <option value="male">男童 (Boy)</option>
-                <option value="female">女童 (Girl)</option>
+            <label><strong>1. 兒童性別：</strong></label>
+            <select id="pGender" style="padding:8px; border-radius:5px;">
+                <option value="male">男童</option>
+                <option value="female">女童</option>
             </select>
         </div>
         <div>
             <label><strong>2. 出生日期：</strong></label>
             <input type="date" id="pBirth" onchange="calculateAge()">
         </div>
-        <div id="age-result" style="grid-column: span 2; font-weight: bold; color: #2980b9; margin-top: 5px;">
-            請輸入生日以計算年齡
-        </div>
+        <div id="age-result" style="grid-column: span 2; font-weight: bold; color: #2980b9;">請輸入生日</div>
     </div>
 
-    <div id="diagnosis" class="diagnosis-box"></div>
-    
     <div class="table-container">
         <table>
             <thead><tr><th>年齡階段</th><th>身高 (cm)</th><th>體重 (kg)</th></tr></thead>
-           <tbody id="input-body">
-    <tr id="row-0"><td>出生</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-    <tr id="row-m6"><td>6個月</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-    <tr id="row-1"><td>1歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-    <tr id="row-2"><td>2歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
-</tbody>
+            <tbody id="input-body">
+                <tr id="row-0" class="data-row" data-age="0"><td>出生</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
+                <tr id="row-0.5" class="data-row" data-age="0.5"><td>6個月</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
+                <tr id="row-1" class="data-row" data-age="1"><td>1歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
+                <tr id="row-2" class="data-row" data-age="2"><td>2歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>
+            </tbody>
         </table>
     </div>
 
     <div class="btn-group">
-        <button class="btn-chart" onclick="generateAnalysis()">1. 顯示 BMI 趨勢圖</button>
-        <button class="btn-export" onclick="exportData()">2. 匯出成長紀錄 (CSV)</button>
+        <button class="btn-chart" onclick="generateAnalysis()">1. 產出成長分析圖表</button>
+        <button class="btn-export" onclick="exportCSV()">2. 匯出成長紀錄 (CSV)</button>
     </div>
 
     <div id="charts-area" style="display:none;">
-        <div class="chart-wrapper"><h4>📏 身高百分位區間 (0-18歲)</h4><canvas id="heightChart"></canvas></div>
-        <div class="chart-wrapper"><h4>📈 BMI 成長趨勢圖</h4><canvas id="bmiChart"></canvas></div>
+        <div class="chart-wrapper"><h4>📏 身高成長曲線</h4><canvas id="heightChart"></canvas></div>
+        <div class="chart-wrapper"><h4>📈 BMI 趨勢圖</h4><canvas id="bmiChart"></canvas></div>
     </div>
 
     <div class="footer">
-        <div class="author-info">設計者：亞洲大學 護理學系 張華蘋老師</div>
-        <div class="ref-note">
-            參考依據：國健署兒童生長曲線、2026.01版預防接種紀要<br>
-            © 2026 亞洲大學護理學系 與 中山醫學大學遺傳代謝科 數位健康照護研究團隊
-        </div>
+        <div style="color: #2980b9; font-weight: bold; font-size: 16px; margin-bottom: 5px;">設計者：亞洲大學 護理學系 張華蘋老師</div>
+        <div>© 2026 亞洲大學護理學系 與 中山醫學大學遺傳代謝科 研究團隊</div>
+        <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">參考依據：國健署兒童生長曲線、2026.01 版預防接種紀要</div>
     </div>
 </div>
 
 <script>
-    // 補足 3-18 歲表格
-    const annualAges = ['3歲', '4歲', '5歲', '6歲', '7歲', '8歲', '9歲', '10歲', '11歲', '12歲', '13歲', '14歲', '15歲', '16歲', '17歲', '18歲'];
+    // 動態加入 3-18 歲欄位
     const tbody = document.getElementById('input-body');
-    annualAges.forEach((age, i) => {
-        tbody.innerHTML += `<tr id="row-${i+3}"><td>${age}</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td></tr>`;
-    });
-
-    function calculateAge() {
-        const birthDate = new Date(document.getElementById('pBirth').value);
-        const today = new Date();
-        if (isNaN(birthDate)) return;
-        let y = today.getFullYear() - birthDate.getFullYear();
-        let m = today.getMonth() - birthDate.getMonth();
-        if (m < 0) { y--; m += 12; }
-        document.getElementById('age-result').innerHTML = `👶 孩子目前年齡：${y} 歲 ${m} 個月`;
-        document.querySelectorAll('tr').forEach(tr => tr.classList.remove('highlight'));
-        const rowId = y >= 3 ? `row-${Math.min(y, 18)}` : (y === 0 && m < 6 ? 'row-0' : (y === 0 ? 'row-m6' : `row-${y}`));
-        if (document.getElementById(rowId)) document.getElementById(rowId).classList.add('highlight');
+    for (let i = 3; i <= 18; i++) {
+        const tr = document.createElement('tr');
+        tr.id = `row-${i}`;
+        tr.className = 'data-row';
+        tr.setAttribute('data-age', i);
+        tr.innerHTML = `<td>${i}歲</td><td><input type="number" step="0.1" class="h-input" placeholder="cm"></td><td><input type="number" step="0.1" class="w-input" placeholder="kg"></td>`;
+        tbody.appendChild(tr);
     }
 
-    // 延用前版專業數據分析與匯出邏輯
-    function generateAnalysis() { document.getElementById('charts-area').style.display = 'block'; }
-    function exportData() { /* 匯出邏輯... */ }
+    function calculateAge() {
+        const birth = new Date(document.getElementById('pBirth').value);
+        if (isNaN(birth)) return;
+        const today = new Date();
+        let y = today.getFullYear() - birth.getFullYear();
+        let m = today.getMonth() - birth.getMonth();
+        if (m < 0) { y--; m += 12; }
+        document.getElementById('age-result').innerHTML = `👶 孩子目前年齡：${y} 歲 ${m} 個月`;
+        
+        document.querySelectorAll('.data-row').forEach(r => r.classList.remove('highlight'));
+        let targetId = y >= 3 ? `row-${Math.min(y, 18)}` : (y === 0 && m < 6 ? 'row-0' : (y === 0 ? 'row-0.5' : `row-${y}`));
+        document.getElementById(targetId).classList.add('highlight');
+    }
+
+    let hChart, bChart;
+
+    function generateAnalysis() {
+        const labels = [], hData = [], bmiData = [];
+        const rows = document.querySelectorAll('.data-row');
+        let hasData = false;
+
+        rows.forEach(row => {
+            const ageText = row.cells[0].innerText;
+            const h = parseFloat(row.querySelector('.h-input').value);
+            const w = parseFloat(row.querySelector('.w-input').value);
+
+            if (!isNaN(h) && !isNaN(w)) {
+                const bmi = (w / ((h / 100) ** 2)).toFixed(1);
+                labels.push(ageText);
+                hData.push(h);
+                bmiData.push(bmi);
+                hasData = true;
+            }
+        });
+
+        if (!hasData) { alert("請至少輸入一組身高與體重數據！"); return; }
+        document.getElementById('charts-area').style.display = 'block';
+
+        if (hChart) hChart.destroy();
+        if (bChart) bChart.destroy();
+
+        const ctxH = document.getElementById('heightChart').getContext('2d');
+        hChart = new Chart(ctxH, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ label: '身高 (cm)', data: hData, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', fill: true, tension: 0.3 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctxB = document.getElementById('bmiChart').getContext('2d');
+        bChart = new Chart(ctxB, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'BMI 值', data: bmiData, borderColor: '#e67e22', backgroundColor: 'rgba(230, 126, 34, 0.1)', fill: true, tension: 0.3 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function exportCSV() {
+        const rows = document.querySelectorAll('.data-row');
+        let csv = "\ufeff階段,身高(cm),體重(kg),BMI\n";
+        rows.forEach(row => {
+            const age = row.cells[0].innerText;
+            const h = row.querySelector('.h-input').value;
+            const w = row.querySelector('.w-input').value;
+            if (h && w) {
+                const bmi = (parseFloat(w) / ((parseFloat(h) / 100) ** 2)).toFixed(1);
+                csv += `${age},${h},${w},${bmi}\n`;
+            }
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "兒童成長紀錄.csv");
+        link.click();
+    }
 </script>
 </body>
 </html>
